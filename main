@@ -1,0 +1,228 @@
+
+#include<stdio.h>
+#include<string.h>
+#include <stdlib.h>
+
+struct Date{
+    int dia,mes,ano;
+}; typedef struct Date Data; //tem que ter ponto e virgula dps da struct
+
+struct listaDeAlunos{
+ char matricula [10];
+ 
+ char matriculaAnterior [10];
+ char nome[50];
+ Data *nascimento;
+ float nota;
+ struct listaDeAlunos *proximo;
+ struct listaDeAlunos *anterior;
+};
+typedef struct listaDeAlunos Aluno;
+
+
+Data* criaDataNasc(int dia,int mes,int ano){
+    Data *novo =malloc(sizeof(Data));
+    novo->dia=dia;
+    novo->mes=mes;
+    novo->ano=ano;
+    return novo;
+}
+Aluno* insereAluno(Aluno *head,Aluno *novoAluno,char matricula[10]){
+    Aluno *aux,*novo;
+    aux=malloc(sizeof(Aluno));
+    // printf("chegou inserealuno \n");
+    aux=novoAluno;
+    // printf("%s mathead\n",head->matricula);
+    // printf("%s matpreenchido\n",aux->matricula);
+    
+    aux->proximo=NULL;
+    aux->anterior=NULL;
+    novo=head;
+    while(novo!=NULL){
+
+        if(strcmp(novo->matricula,matricula)==0){
+            printf("achou matricula\n");
+            if(novo->proximo==NULL){ //achou na ultima posicao
+            printf("entrou no ultimo");
+            aux->anterior=novo;
+            novo->proximo=aux;
+            // printf("penultimo: %s \n",aux->anterior);
+            // printf("novo ultimo: %s \n",novo->proximo);
+            break;
+
+        }
+            else{
+                printf("no else\n");
+                aux->proximo=novo->proximo;
+                aux->anterior=novo;
+                novo->proximo->anterior=aux;
+                novo->proximo=aux;
+                break;
+            }
+
+        }
+
+        novo=novo->proximo;
+        
+
+    }
+    if(novo==NULL){ //se passsou por todos e nao achou, tem que por antes do head// no lugar do head
+            
+            aux->proximo=head;
+            head->anterior=aux;
+            aux->anterior=NULL;
+            // head=aux;
+            
+           head=aux;
+            
+            return head;
+
+    }
+        return head;
+
+
+
+}
+
+void exlcuirAluno(Aluno *head,char matExclusao[10]){
+    Aluno *aux=malloc(sizeof(Aluno));
+    Aluno *aux2=malloc(sizeof(Aluno));
+    aux=head;
+    while(aux!=NULL){
+        printf("entrou!\n");
+        if(strcmp(aux->matricula,matExclusao)==0 ){
+            printf("entrou 2!\n");
+            if(strcmp(aux->matricula,head->matricula)==0){
+                printf("achou no primeiro\n");
+                aux->proximo->anterior=NULL;
+                aux2=aux->proximo;
+                printf("%s primeiro\n",aux->matricula);
+                printf("%s segundo\n",aux->proximo->matricula);
+                free(aux);
+                head=aux2;
+                printf("dps de apagado %s\n",aux->matricula);
+
+                // printf("head matricula %s\n",head->matricula);
+                // head=aux->proximo;
+                // printf("head matricula prox %s\n",head->matricula);
+
+                
+                
+            }   
+            if(aux->proximo==NULL){
+                aux->anterior->proximo=NULL;
+                free(aux);
+
+            break;
+        }
+            // else{   
+            //     aux->proximo->anterior=aux->anterior;
+            //     aux->anterior->proximo=aux->proximo;
+            //     break;   
+            // }
+         
+
+        }
+        
+        aux=aux->proximo;
+        
+    }
+
+    
+}
+void listarAlunos(Aluno *head){
+    Aluno *aux;
+    if(head==NULL){
+        printf("Lista vazia \n");
+    }
+    else if(head!=NULL){
+        aux=head;
+        while(aux!=NULL){
+            printf("%s,%s,%d/%d/%d/,%.2f \n",aux->matricula,aux->nome,aux->nascimento->dia,aux->nascimento->mes,aux->nascimento->ano,aux->nota);
+            aux=aux->proximo;
+        }
+        return;
+    }
+
+
+}
+
+Aluno *novoAluno(Aluno *novoAluno){ //recebendo primeira posicao (novoaluno)
+    Aluno *aux=malloc(sizeof(Aluno));
+
+    
+
+    int dia,mes,ano;
+    aux->proximo=NULL;
+    aux->anterior=NULL;
+    printf("Digite a matricula anterior\n");
+    scanf("%s",aux->matriculaAnterior);
+    printf("Digite a matricula\n");
+    scanf("%s",aux->matricula);
+    printf("Digite o nome \n");
+    scanf("%s",aux->nome);
+    printf("Digite a data nasc\n");
+    scanf("%d/%d/%d",&dia,&mes,&ano);
+    // data=criaDataNasc(dia,mes,ano);
+    // aux->nascimento.dia=data->dia;
+    // aux->nascimento.mes=data->mes;
+    // aux->nascimento.ano=data->ano;
+    aux->nascimento=criaDataNasc(dia,mes,ano);
+
+    printf("Digite a nota\n");
+    scanf("%f",&aux->nota);
+    if(novoAluno == NULL){ //primeira vez
+        return aux;
+    }
+
+     return insereAluno(novoAluno,aux,aux->matriculaAnterior);
+    
+
+
+}
+
+
+void menu(Aluno *head){
+    int opcao;
+    char matExclusao [10];
+    while(1){
+        scanf("%d", &opcao);
+        // if(opcao == 0){
+        //     finalizar(head);
+        //     break;
+        // }
+        if(opcao == 1){
+            if(head == NULL){
+                head = novoAluno(head);
+            }
+            else{
+               head= novoAluno(head);
+            }
+        }
+        if(opcao == 2){
+            scanf("%s",matExclusao);
+            exlcuirAluno(head,matExclusao);
+        }
+        if(opcao == 3){
+            listarAlunos(head);
+        }
+        // if(opcao == 4){
+        //     if(head == NULL){
+        //         printf("Lista Vazia!\n");
+        //     }
+        //     else{
+        //         listarAlunosInverso(head);
+        //     }
+        // }
+        // if(opcao == 5){
+        //     tamanhoLista(head);
+        // }      
+    }
+}
+
+int main(){
+    Aluno *head = NULL;
+    menu(head);
+
+    return 0;
+}
